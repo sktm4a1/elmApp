@@ -13,10 +13,39 @@
 			</div>
 			<div class="contentRight" :class="{'descHighLight':totalPrice>=minPrice}">{{priceDesc}}</div>
 		</div>
+		<div class="ball-container">
+			<transition-group tag="div" name="drop" @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter">
+				<div v-for="(ball,i) in balls" :key="i" v-show="ball.show" class="ball">
+					<div class="ballInner"></div>
+				</div>
+			</transition-group>
+		</div>
 	</div>
 </template>
 <script>
 	export default {
+		data() {
+			return {
+				balls:[
+					{
+						show:false
+					},
+					{
+						show:false
+					},
+					{
+						show:false
+					},
+					{
+						show:false
+					},
+					{
+						show:false
+					}
+				],
+				dropBall:[]
+			}
+		},
 		props:{
 			deliveryPrice:{
 				type:Number,
@@ -36,6 +65,56 @@
 					return [];
 				}
 			}
+		},
+		methods:{
+			drop(el) {
+				for (var i=0;i<this.balls.length;i++){
+					let ball  = this.balls[i];
+					if(!ball.show){
+						ball.show = true;
+						ball.el = el;
+						this.dropBall.push(ball);
+						return;
+					}
+				}
+			},
+			beforeEnter(el) {
+					let count = this.balls.length;
+					while(count--){
+						let ball = this.balls[count];
+						if(ball.show){
+							// rect 是一个具有四个属性left、top、right、bottom的DOMRect对象
+							// Element.getBoundingClientRect()方法返回元素的大小及其相对于视口的位置。
+							let rect = ball.el.getBoundingClientRect();
+							let x = rect.left - 32;
+							let y = -(window.innerHeight-rect.top -22);//获得x和y轴的偏移
+							el.style.display = 'none';
+							el.style.webkitTransform = `translate3d(0,${y}px,0)`;
+							el.style.transform = `translate3d(0,${y}px,0)`;
+							let inner = el.getElementsByClassName('ballInner')[0];
+							inner.style.webkitTransform = `translate3d(${x}px,0,0)`;
+							inner.style.transform = `translate3d(${x}px,0,0)`;
+						}
+					}
+				},
+				enter(el,done) {
+					el.offsetWidth;//触发重绘
+					el.style.webkitTransform = 'translate3d(0,0,0)';
+					el.style.transform = 'translate3d(0,0,0)';
+					el.style.transition="all .6s cubic-bezier(.4,-0.3,1,.68)";
+					let inner = el.getElementsByClassName('ballInner')[0];
+					inner.style.webkitTransform = 'translate3d(0,0,0)';
+					inner.style.transform = 'translate3d(0,0,0)';
+					inner.style.transition="all .6s cubic-bezier(.4,-0.3,1,.68)";
+					done();
+				},
+				afterEnter(el) {
+					let ball = this.dropBall.shift();
+					if(ball)
+					{
+						ball.show = false;
+					}
+				}
 		},
 		computed: {
 			totalPrice() {
@@ -164,5 +243,29 @@
 	.shopcart .content .descHighLight {
 		color: #fff;
 		background: #00b43c;
+	}
+
+	/*购物车小球动画*/
+
+	.ball-container .ball {
+		position: fixed;
+		left: 32px;
+		bottom: 22px;
+		z-index: 100;
+	}
+	/* .drop-enter, .drop-leave-to {
+		
+	}
+	.drop-enter-active, .drop-leave-active {
+		transform: translate3d(0,0,0);
+	}
+	.drop-enter-active .ballInner, .drop-leave-active .ballInner {
+		transform: translate3d(0,0,0);
+	} */
+	.ball-container .ballInner {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: rgb(0, 160, 220);
 	}
 </style>

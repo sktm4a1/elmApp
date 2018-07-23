@@ -27,14 +27,15 @@
 								<div class="price">
 									<span class="nowPrice"><i>￥</i>{{food.price}}</span><span v-show="food.oldPrice" class="oldPrice"><i>￥</i>{{food.oldPrice}}</span>
 								</div>
-								<cartcontrol :food="food"></cartcontrol>
+								<cartcontrol :food="food" v-on:cart-add="cartAdd"></cartcontrol>
+								<!-- 一定要v-on监听 -->
 							</div>
 						</li>
 					</ul>
 				</li>
 			</ul>
 		</div>
-		<shopcart :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice" :selectFoods="selectFoods"></shopcart>
+		<shopcart ref="shopcart" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice" :selectFoods="selectFoods"></shopcart>
 	</div>
 </template>
 <script>
@@ -116,6 +117,12 @@
 				this.foodsList = this.$refs.goodswrapper.getElementsByClassName('foodList');
 				let el = this.foodsList[i];
 				this.goodsScroll.scrollToElement(el,300);
+			},
+			cartAdd(el) {
+				/*this.$nextTick(() => {
+
+				});*/
+				this.$refs['shopcart'].drop(el);
 			}
 		},
 		created() {

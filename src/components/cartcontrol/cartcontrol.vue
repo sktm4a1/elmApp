@@ -1,6 +1,6 @@
 <template>
 	<div class="cartcontrol">
-		<transition>
+		<transition name="cart">
 			<div class="cart-decrease" v-show="food.count>0" @click="decreaseCart($event)">
 				<div class="inner fa fa-minus-circle"></div>
 			</div>
@@ -30,6 +30,7 @@
 					Vue.set(this.food,'count',1);
 				else
 					this.food.count++;
+				this.$emit('cart-add',event.target);
 			},
 			decreaseCart(event) {
 				if(!event._constructed)
@@ -49,14 +50,14 @@
 		line-height: 24px;
 		color: rgb(0,160,220);
 	}
-	.v-enter,.v-leave-to {
+	.cart-enter,.cart-leave-to {
 		opacity: 0;
 		transform: translate3d(24px, 0, 0);
 	}
-	.v-enter {
+	.cart-enter {
 		transform: rotate(180deg);
 	}
-	.v-enter-active,.v-leave-active {
+	.cart-enter-active,.cart-leave-active {
 		transition: all .4s ease;
 	}
 	.cartcontrol .cart-count {
